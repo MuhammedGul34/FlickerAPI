@@ -24,7 +24,7 @@ class PhotoTableViewCell: UITableViewCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        ownerImageView.layer.cornerRadius = 24.0
         // Configure the view for the selected state
     }
 

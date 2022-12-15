@@ -100,7 +100,7 @@ class RecentPhotoTableViewController: UITableViewController, UISearchResultsUpda
            let iconfarm = photo?.iconfarm,
            let nsid = photo?.owner,
            NSString(string: iconserver).intValue > 0 {
-            fetchImage(with: "http://farm\(iconfarm).staticflickr.com/\(iconserver)/buddyicons/\(nsid)}.jpg") { data in
+            fetchImage(with: "http://farm\(iconfarm).staticflickr.com/\(iconserver)/buddyicons/\(nsid).jpg") { data in
                 cell.ownerImageView.image = UIImage(data: data)
             }
         } else {
