@@ -8,6 +8,9 @@
 import UIKit
 
 class PhotoDetailViewController: UIViewController {
+    
+    var photo: Photo?
+    
     @IBOutlet weak var imageView: UIImageView!
     
     @IBOutlet weak var ownerImageView: UIImageView!
@@ -20,9 +23,24 @@ class PhotoDetailViewController: UIViewController {
         super.viewDidLoad()
         
         title = "Photo Detail"
-        imageView.backgroundColor = .gray
-        ownerImageView.backgroundColor = .gray
         ownerNameLabel.text = "Owner Name"
         descriptionLabel.text = "Description Label Description Label Description Label Description Label Description Label"
+        
+        
+        ownerNameLabel.text = photo?.ownername
+        
+        NetworkManager.shared.fetchImage(with: photo?.buddyIconUrl) { data in
+            self.ownerImageView.image = UIImage(data: data)
+        }
+        
+        NetworkManager.shared.fetchImage(with: photo?.urlZ) { data in
+            self.imageView.image = UIImage(data: data)
+        }
+        
+        title = photo?.title
+        
+        descriptionLabel.text = photo?.welcomeDescription?.content
     }
+    
+    
 }

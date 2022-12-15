@@ -17,6 +17,8 @@ class RecentPhotoTableViewController: UITableViewController, UISearchResultsUpda
         }
     }
     
+    private var selectedPhoto: Photo?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
        
@@ -49,7 +51,7 @@ class RecentPhotoTableViewController: UITableViewController, UISearchResultsUpda
     }
     
     private func searchPhotos(with text: String){
-        guard let url = URL(string: "https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=de0b083d4a218ed778abc1dbdc6811e2&text=flower&format=json&nojsoncallback=1&extras=description,owner_name,icon_server,url_n,url_z") else {return}
+        guard let url = URL(string: "https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=de0b083d4a218ed778abc1dbdc6811e2&text=\(text)&format=json&nojsoncallback=1&extras=description,owner_name,icon_server,url_n,url_z") else {return}
         let request = URLRequest(url: url)
         
         URLSession.shared.dataTask(with: request) { data, response, error in
@@ -63,22 +65,6 @@ class RecentPhotoTableViewController: UITableViewController, UISearchResultsUpda
         }.resume()
     }
     
-    private func fetchImage(with url: String?, completion : @escaping (Data) -> (Void)) {
-        if let urlString = url, let url = URL(string: urlString){
-            let request = URLRequest(url: url)
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    debugPrint(error)
-                    return
-                }
-                if let data = data {
-                    DispatchQueue.main.async {
-                        completion(data)
-                    }
-                }
-            }.resume()
-        }
-    }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -96,20 +82,11 @@ class RecentPhotoTableViewController: UITableViewController, UISearchResultsUpda
         cell.ownerImageView.backgroundColor = .darkGray
         cell.ownerNameLabel.text = photo?.ownername
         
-        if let iconserver = photo?.iconserver,
-           let iconfarm = photo?.iconfarm,
-           let nsid = photo?.owner,
-           NSString(string: iconserver).intValue > 0 {
-            fetchImage(with: "http://farm\(iconfarm).staticflickr.com/\(iconserver)/buddyicons/\(nsid).jpg") { data in
-                cell.ownerImageView.image = UIImage(data: data)
-            }
-        } else {
-            fetchImage(with: "https://www.flickr.com/images/buddyicon.gif") { data in
-                cell.ownerImageView.image = UIImage(data: data)
-            }
+        NetworkManager.shared.fetchImage(with: photo?.buddyIconUrl) { data in
+            cell.ownerImageView.image = UIImage(data: data)
         }
         
-        fetchImage(with: photo?.urlN) { data in
+        NetworkManager.shared.fetchImage(with: photo?.urlN) { data in
             cell.photoImageView.image = UIImage(data: data)
         }
         
@@ -118,13 +95,14 @@ class RecentPhotoTableViewController: UITableViewController, UISearchResultsUpda
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        selectedPhoto = response?.photos?.photo?[indexPath.row]
         performSegue(withIdentifier: "detailSeque", sender: nil)
     }
     
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let viewController = segue.destination as? PhotoDetailViewController {
-            // TODO: Send the phot that choosen to screen
+            viewController.photo = selectedPhoto
         }
     }
     
