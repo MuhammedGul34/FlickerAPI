@@ -96,6 +96,19 @@ class RecentPhotoTableViewController: UITableViewController, UISearchResultsUpda
         cell.ownerImageView.backgroundColor = .darkGray
         cell.ownerNameLabel.text = photo?.ownername
         
+        if let iconserver = photo?.iconserver,
+           let iconfarm = photo?.iconfarm,
+           let nsid = photo?.owner,
+           NSString(string: iconserver).intValue > 0 {
+            fetchImage(with: "http://farm\(iconfarm).staticflickr.com/\(iconserver)/buddyicons/\(nsid)}.jpg") { data in
+                cell.ownerImageView.image = UIImage(data: data)
+            }
+        } else {
+            fetchImage(with: "https://www.flickr.com/images/buddyicon.gif") { data in
+                cell.ownerImageView.image = UIImage(data: data)
+            }
+        }
+        
         fetchImage(with: photo?.urlN) { data in
             cell.photoImageView.image = UIImage(data: data)
         }
